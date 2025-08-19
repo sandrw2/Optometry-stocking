@@ -23,7 +23,7 @@ def rename_files_in_folder(folder_path):
         os.rename(src, dst)
         print(f"Renamed {filename} -> {new_name}")
 
-rename_files_in_folder("/Users/sandrawang/Documents/Optometry_Apps/OCR_test/")
+rename_files_in_folder("../OCR/OCR_test/")
     
 
 
