@@ -1,5 +1,5 @@
 from rapidfuzz import process, fuzz
-from OCR.contacts import Contacts
+from contacts import Contacts
 
 
 def parse_contact_lens_data(text_details):
