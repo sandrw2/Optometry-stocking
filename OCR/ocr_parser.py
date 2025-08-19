@@ -81,6 +81,8 @@ def clean_param(words, details):
                         params["Add"] = get_center_of_vertices(details[word])
                     else:
                         print("Skipping unrecognized word:", word)
+    print("Params:", params)
+    print("Values:", values)
     return params, values
 
 def find_new_bounding_box(box1, box2):

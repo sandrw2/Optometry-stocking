@@ -1,9 +1,17 @@
 from google.cloud import vision
 from PIL import Image, ImageDraw
+from google.oauth2 import service_account
+
+
+# Path to your service account JSON key file
+KEY_PATH = "../credentials/google_vision_key.json"
 
 def draw_boxes(image_path):
-    # Create a Vision API client
-    client = vision.ImageAnnotatorClient()
+    credentials = service_account.Credentials.from_service_account_file(KEY_PATH)
+
+    # Create the Vision API client with credentials
+    client = vision.ImageAnnotatorClient(credentials=credentials)
+    
     # Read the image file in binary mode
     with open(image_path, "rb") as image_file:
         content = image_file.read()
@@ -29,11 +37,11 @@ def draw_boxes(image_path):
         print(text.description)
     
     img = img.rotate(-90, expand=True)
-    img.save("OCR_output/output_4.jpg")
+    img.save("OCR_output/output_5.jpg")
 
         
 
 if __name__ == "__main__":
     # Change this to your actual image path
-    image_path = "OCR_test/test_024.jpeg"
+    image_path = "OCR_test/test_006.jpeg"
     draw_boxes(image_path)
