@@ -29,7 +29,7 @@ def draw_boxes(image_path):
         print(text.description)
     
     img = img.rotate(-90, expand=True)
-    img.save("output/output_4.jpg")
+    img.save("OCR_output/output_4.jpg")
 
         
 

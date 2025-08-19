@@ -3,7 +3,7 @@ from google.oauth2 import service_account
 from ocr_parser import parse_contact_lens_data
 
 # Path to your service account JSON key file
-KEY_PATH = "/Users/sandrawang/Documents/Optometry_Apps/credentials/google_vision_key.json"
+KEY_PATH = "../credentials/google_vision_key.json"
 
 def detect_text_with_service_account(image_path):
     # Create credentials object from JSON key file
@@ -33,6 +33,6 @@ def detect_text_with_service_account(image_path):
         return {}
 
 if __name__ == "__main__":
-    img_path = "/Users/sandrawang/Documents/Optometry_Apps/OCR_test/test_024.jpeg"
+    img_path = "OCR_test/test_024.jpeg"
     text = detect_text_with_service_account(img_path)
     data = parse_contact_lens_data(text)
