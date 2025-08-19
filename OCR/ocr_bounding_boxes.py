@@ -11,7 +11,7 @@ def draw_boxes(image_path):
 
     # Create the Vision API client with credentials
     client = vision.ImageAnnotatorClient(credentials=credentials)
-    
+
     # Read the image file in binary mode
     with open(image_path, "rb") as image_file:
         content = image_file.read()
@@ -43,5 +43,5 @@ def draw_boxes(image_path):
 
 if __name__ == "__main__":
     # Change this to your actual image path
-    image_path = "OCR_test/test_006.jpeg"
+    image_path = "OCR_test/test_039.jpeg"
     draw_boxes(image_path)

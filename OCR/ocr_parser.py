@@ -81,6 +81,9 @@ def clean_param(words, details):
                         params["Add"] = get_center_of_vertices(details[word])
                     else:
                         print("Skipping unrecognized word:", word)
+        if skip_next:
+            print("Skipped next word due to sign combination.")
+            skip_next = False
     print("Params:", params)
     print("Values:", values)
     return params, values

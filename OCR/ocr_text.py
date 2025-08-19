@@ -33,6 +33,6 @@ def detect_text_with_service_account(image_path):
         return {}
 
 if __name__ == "__main__":
-    img_path = "OCR_test/test_006.jpeg"
+    img_path = "OCR_test/test_039.jpeg"
     text = detect_text_with_service_account(img_path)
     data = parse_contact_lens_data(text)
