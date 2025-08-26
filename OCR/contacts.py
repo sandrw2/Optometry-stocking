@@ -1,7 +1,8 @@
 class Contacts:
-    def __init__(self, brand=None, line=None, typ=None, duration=None, power=None, cylinder=None, axis=None, add=None, diameter=None, bc=None):
+    def __init__(self, brand=None, subbrand=None, tech = None, typ=None, duration=None, power=None, cylinder=None, axis=None, add=None, diameter=None, bc=None):
         self.brand = brand
-        self.line = line
+        self.subbrand = subbrand
+        self.tech = tech 
         self.typ = typ
         self.duration = duration
         self.power = power
@@ -14,7 +15,8 @@ class Contacts:
     def to_dict(self):
         return {
             "Brand": self.brand,
-            "Line": self.line,
+            "Subbrand": self.line,
+            "Tech": self.tech,
             "Type": self.typ,
             "Duration": self.duration,
             "Power": self.power,

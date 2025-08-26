@@ -6,17 +6,22 @@ def parse_contact_lens_data(text_details):
 
     ocr_words = list(text_details.keys())
     half_length = len(ocr_words) // 2
-    title_half = ocr_words[:half_length]
-    title_data = read_title(title_half)
+    brand_line_half = ocr_words[:half_length]
+    line_keywords = clean_title(brand_line_half)
+    brand, line = match_line(line_keywords)
+    print("Title keywords:", line_keywords)
+    print("Matched line:", line, "Brand:", brand)
     
     #Param_keys and param_values are dicts of words with their centers
     param_keys, param_values = clean_param(ocr_words[half_length:], text_details)
     print(param_keys, param_values)
     param_data = match_parameters(param_keys, param_values)
+    print("Matched parameters:", param_data)
 
     # contact_lens = Contacts(
     #     brand=title_data.get("Brand"),
-    #     line=title_data.get("Line"),
+    #     subbrand=title_data.get("Subbrand"),
+    #     tech = title_data.get("Tech")
     #     typ=title_data.get("Type"),
     #     duration=title_data.get("Duration"),
     #     power=param_data.get("Power"),
@@ -43,7 +48,7 @@ def clean_param(words, details):
     skip_next = False
     for i in range(len(words)):
         word = words[i]
-        print("checking word:", word, details[word])
+        # print("checking word:", word, details[word])
         if not skip_next:
             # if the word is a sign, try to combine with next word and skip next
             if  (word == "-" or word == "+") and i + 1 < len(words):
@@ -57,7 +62,7 @@ def clean_param(words, details):
                         skip_next = True
                     
                     except ValueError:
-                        print(f"{word} and {words[i+1]} could not be combined into a valid number.")
+                        # print(f"{word} and {words[i+1]} could not be combined into a valid number.")
                         pass
             
             #If word has sign and value, keep as is
@@ -80,12 +85,11 @@ def clean_param(words, details):
                     elif word in word_bank["Add"]:
                         params["Add"] = get_center_of_vertices(details[word])
                     else:
-                        print("Skipping unrecognized word:", word)
-        if skip_next:
-            print("Skipped next word due to sign combination.")
+                        pass
+                        # print("Skipping unrecognized word:", word)
+        else:
+            # print("Skipped next word due to sign combination.")
             skip_next = False
-    print("Params:", params)
-    print("Values:", values)
     return params, values
 
 def find_new_bounding_box(box1, box2):
@@ -100,35 +104,88 @@ def find_best_match(word, bank, threshold=80):
         match, score, _ = process.extractOne(word, bank, scorer=fuzz.ratio)
         return match if score >= threshold else None
 
-def read_title(title):
+def clean_title(title):
     # Normalize OCR words
-    title = [w.upper() for w in title]
+    line_name = [w.upper() for w in title]
     
-    word_bank = {
-    "Brand": ["COMFILCON", "ACUVUE", "BIOFINITY", "AIR OPTIX", "BAUSCH", "TOTAL1","TOTAL30", "PRECISION1", "PRECISION7", "1 DAY"],
-    "Line": ["HYDRALUXE", "MAX", "MOIST", "HYDRACLEAR"],
-    "Type": ["TORIC", "ASTIGMATISM", "MULTIFOCAL", "PRESBYOPIA"],
-    "Duration": ["1-DAY"]
-    }
-
-
-    data = {
-        "Brand": None,
-        "Line": None,
-        "Type": "Spherical",
-        "Duration": None
-    }
+    keywords = ["ACUVUE OASYS", 
+                     "OASYS", 
+                     "AIR OPTIX", 
+                     "HYDRALUXE", 
+                     "MAX", 
+                     "MOIST", 
+                     "HYDRACLEAR", 
+                     "COMFILCON", 
+                     "SILICONE", 
+                     "TOTAL30", 
+                     "PRECISION1", 
+                     "PRECISION7", 
+                     "TORIC", 
+                     "ASTIGMATISM", 
+                     "MULTIFOCAL", 
+                     "PRESBYOPIA",
+                     "1-DAY"
+                     "ULTRA", 
+                     "BIOTRUE"
+                     "XR"
+                ]
+    
+    line_keywords = []
     
 
-    for word in title:
-        for category in data.keys():
-            if data[category] == None or data[category] == "Spherical":
-                matched = find_best_match(word, word_bank[category])
+    for word in line_name:
+        if word not in line_keywords:
+                matched = find_best_match(word, keywords)
                 if matched:
-                    data[category] = matched
-                    break
+                    line_keywords.append(matched)
     
-    return data
+    return line_keywords
+
+def match_line(keywords):
+
+    brand_line = {
+        "ACUVUE": ["ACUVUE OASYS 2-Week", 
+                   "1-DAY ACUVUE MOIST", 
+                   "1-DAY ACUVUE MOIST FOR ASTIGMATISM", 
+                   "ACUVUE OASYS 1-DAY FOR ASTIGMATISM",
+                   "ACUVUE OASYS MAX 1-DAY",
+                   "ACUVUE OASYS 1-DAY",
+                   "ACUVUE OASYS MAX 1-DAY MULTIFOCAL"],
+        "COOPERVISION": ["BIOFINITY", 
+                      "BIOFINITY TORIC", 
+                      "BIOFINITY MULTIFOCAL",
+                      "MYDAY"],
+        "BAUSCH+LOMB": ["ULTRA", 
+                        "ULTRA FOR ASTIGMATISM", 
+                        "ULTRA FOR PRESBYOPIA",
+                        "ULTRA MULTIFOCAL FOR ASTIGMATISM",
+                        "INFUSE",
+                        "BIOTRUE ONEDAY"],
+        "ALCON": ["DAILIES TOTAL1",
+                  "PRECISION7",
+                  "PRECISION7 FOR ASTIGMATISM", 
+                  "PRECISION1",
+                  "PRECISION1 FOR ASTIGMATISM",
+                  "TOTAL30"
+                  "TOTAL30 FOR ASTIGMATISM"]
+        
+    }
+    #normalize keywords
+    keywords = [k.upper() for k in keywords]
+    read_line = " ".join(keywords)
+
+    # given keywords list, match using fuzzy search
+    top_score = 0
+    top_match = (None, None)
+    for brand, lines in brand_line.items():
+        for line in lines:
+            score = fuzz.partial_ratio(read_line, line)
+            if score > top_score:
+                top_match = (brand, line)
+                top_score = score
+    
+    return top_match
+            
 
 def get_distance(point1, point2):
     return ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2) ** 0.5
@@ -140,8 +197,9 @@ def match_parameters(params, values):
         closest_value = None
         closest_distance = float('inf')
 
+        #Check values to the right of param first
         for value, value_center in values.items():
-            print("checking value:", value, "for param:", param)
+            # print("checking value:", value, "for param:", param)
             value_center_x, value_center_y = value_center
             if value_center_x >= param_center_x:
                 distance = get_distance((param_center_x, param_center_y), (value_center_x, value_center_y))
@@ -151,24 +209,23 @@ def match_parameters(params, values):
                         if valid:
                             print("valid value:", valid_val, "for param:", param)
                             closest_distance = distance
-                            closest_value = value
+                            closest_value = valid_val
+        #Check values below if none found to the right
         if closest_value is None:
             for value, value_center in values.items():
                 value_center_y, value_center_y = value_center
                 if value_center_y >= param_center_y:
                     distance = get_distance((param_center_x, param_center_y), (value_center_x, value_center_y))
                     if distance < closest_distance:
+                        print ("found closer value:", value, "for param:", param, "distance:", distance)
                         valid, valid_val = is_valid_parameter_value(param, value)
                         if valid:
                             closest_distance = distance
-                            closest_value = value
+                            closest_value = valid_val
 
-        if closest_value is not None:
-            try:
-                data[param] = closest_value
-            except ValueError:
-                print("Could not convert value to float:", closest_value)
-    print(data)
+        
+        data[param] = closest_value
+    # print(data)
     return data
         
 
