@@ -7,7 +7,7 @@ def parse_contact_lens_data(text_details):
     ocr_words = list(text_details.keys())
     half_length = len(ocr_words) // 2
     brand_line_half = ocr_words[:half_length]
-    line_keywords = clean_title(brand_line_half)
+    line_keywords = find_title_keywords(brand_line_half)
     brand, line = match_line(line_keywords)
     print("Title keywords:", line_keywords)
     print("Matched line:", line, "Brand:", brand)
@@ -34,6 +34,140 @@ def parse_contact_lens_data(text_details):
     # return contact_lens
 
 
+#################################################
+#Title matching functions
+#################################################
+
+def find_title_keywords(title):
+    # Normalize OCR words
+    line_name = [w.upper() for w in title]
+    
+    keywords = ["ACUVUE OASYS",
+                     "ACUVUE",
+                     "OASYS", 
+                     "AIR OPTIX", 
+                     "HYDRALUXE", 
+                     "MAX", 
+                     "MOIST", 
+                     "HYDRACLEAR", 
+                     "COMFILCON", 
+                     "SILICONE", 
+                     "TOTAL30", 
+                     "PRECISION1", 
+                     "PRECISION7", 
+                     "TORIC", 
+                     "ASTIGMATISM", 
+                     "MULTIFOCAL", 
+                     "PRESBYOPIA",
+                     "1-DAY",
+                     "ULTRA", 
+                     "BIOTRUE"
+                     "XR"
+                     "ALCON"
+                     "BAUSCH+LOMB"
+                ]
+    
+    line_keywords = []
+    
+
+    for word in line_name:
+        if word not in line_keywords:
+                matched = find_best_match(word, keywords)
+                if matched:
+                    line_keywords.append(matched)
+    
+    return line_keywords
+
+def match_line(keywords):
+
+    brand_line = {
+        "ACUVUE": ["ACUVUE OASYS 2-Week", 
+                   "1-DAY ACUVUE MOIST", 
+                   "1-DAY ACUVUE MOIST FOR ASTIGMATISM", 
+                   "ACUVUE OASYS 1-DAY FOR ASTIGMATISM",
+                   "ACUVUE OASYS MAX 1-DAY",
+                   "ACUVUE OASYS 1-DAY",
+                   "ACUVUE OASYS MAX 1-DAY MULTIFOCAL"],
+        "COOPERVISION": ["COMFILCON", 
+                      "COMFILCON TORIC", 
+                      "COMFILCON TORIC XR",
+                      "COMFILCON MULTIFOCAL",
+                      "1 DAY SILICONE", 
+                      "1 DAY TORIC SILICONE",
+                      "1 DAY MULTIFOCAL SILICONE",],
+        "BAUSCH+LOMB": ["ULTRA", 
+                        "ULTRA FOR ASTIGMATISM", 
+                        "ULTRA FOR PRESBYOPIA",
+                        "ULTRA MULTIFOCAL FOR ASTIGMATISM",
+                        "INFUSE",
+                        "BIOTRUE ONEDAY"],
+        "ALCON": ["DAILIES TOTAL1",
+                  "PRECISION7",
+                  "PRECISION7 FOR ASTIGMATISM", 
+                  "PRECISION1",
+                  "PRECISION1 FOR ASTIGMATISM",
+                  "TOTAL30"
+                  "TOTAL30 FOR ASTIGMATISM"]
+        
+    }
+    
+    #normalize keywords
+    keywords = [k.upper() for k in keywords]
+    brand = None
+    line = None
+
+    coopervision_brand_conversion = {"COMFILCON": "BIOFINITY",
+                                    "COMFILCON TORIC": "BIOFINITY TORIC",
+                                    "COMFILCON TORIC XR": "BIOFINITY TORIC XR",
+                                    "COMFILCON MULTIFOCAL": "BIOFINITY MULTIFOCAL",
+                                    "1 DAY SILICONE": "MYDAY",
+                                    "1 DAY TORIC SILCONE" : "MYDAY TORIC", 
+                                    "1 DAY MULTIFOCAL SILICONE": "MYDAY MULTIFOCAL"
+                                     }
+    
+                                    
+    
+    # First filter: Check which brand family 
+    if "ACUVUE" in keywords or "OASYS" in keywords:
+        brand = "ACUVUE"
+        line = match_line_from_brand(keywords, brand_line[brand])
+    elif "ALCON" in keywords:
+        brand = "ALCON"
+        line = match_line_from_brand(keywords, brand_line[brand])
+    elif "SILICONE" in keywords or "COMFILCON" in keywords:
+        brand = "COOPERVISION"
+        line, _ = match_line_from_brand(keywords, brand_line[brand])
+        line = coopervision_brand_conversion[line]
+        
+    elif "BAUSCH+LOMB" in keywords or "BIOTRUE" in keywords or "ULTRA" in keywords:
+        brand = "BAUSCH+LOMB"
+        line = match_line_from_brand(keywords, brand_line[brand])
+    
+    return brand, line
+            
+#returns best matching line from list given keyword list
+def match_line_from_brand(keywords, brand_lines):
+    top_match = None
+    top_score = float('-inf')
+    #Check each line check if line contains keyword, keep highest scoring line
+    #Scoring based on matched/length ratio
+    for line in brand_lines:
+        matched = 0 
+        line_array = line.split()
+        for word in keywords:
+            if word in line_array: 
+                matched += 1
+            else:
+                matched -= 1
+        score = matched/len(line_array)
+        if score > top_score:
+            top_score = score
+            top_match = line
+    return top_match, top_score
+
+#################################################
+#Parameter matching functions
+#################################################
 def clean_param(words, details):
     values = {}
     params = {}
@@ -100,96 +234,6 @@ def find_new_bounding_box(box1, box2):
         bottom = max(y for _, y in new_box_values) 
         return (left, top), (right, top), (right, bottom), (left, bottom)
 
-def find_best_match(word, bank, threshold=80):
-        match, score, _ = process.extractOne(word, bank, scorer=fuzz.ratio)
-        return match if score >= threshold else None
-
-def clean_title(title):
-    # Normalize OCR words
-    line_name = [w.upper() for w in title]
-    
-    keywords = ["ACUVUE OASYS", 
-                     "OASYS", 
-                     "AIR OPTIX", 
-                     "HYDRALUXE", 
-                     "MAX", 
-                     "MOIST", 
-                     "HYDRACLEAR", 
-                     "COMFILCON", 
-                     "SILICONE", 
-                     "TOTAL30", 
-                     "PRECISION1", 
-                     "PRECISION7", 
-                     "TORIC", 
-                     "ASTIGMATISM", 
-                     "MULTIFOCAL", 
-                     "PRESBYOPIA",
-                     "1-DAY"
-                     "ULTRA", 
-                     "BIOTRUE"
-                     "XR"
-                ]
-    
-    line_keywords = []
-    
-
-    for word in line_name:
-        if word not in line_keywords:
-                matched = find_best_match(word, keywords)
-                if matched:
-                    line_keywords.append(matched)
-    
-    return line_keywords
-
-def match_line(keywords):
-
-    brand_line = {
-        "ACUVUE": ["ACUVUE OASYS 2-Week", 
-                   "1-DAY ACUVUE MOIST", 
-                   "1-DAY ACUVUE MOIST FOR ASTIGMATISM", 
-                   "ACUVUE OASYS 1-DAY FOR ASTIGMATISM",
-                   "ACUVUE OASYS MAX 1-DAY",
-                   "ACUVUE OASYS 1-DAY",
-                   "ACUVUE OASYS MAX 1-DAY MULTIFOCAL"],
-        "COOPERVISION": ["BIOFINITY", 
-                      "BIOFINITY TORIC", 
-                      "BIOFINITY MULTIFOCAL",
-                      "MYDAY"],
-        "BAUSCH+LOMB": ["ULTRA", 
-                        "ULTRA FOR ASTIGMATISM", 
-                        "ULTRA FOR PRESBYOPIA",
-                        "ULTRA MULTIFOCAL FOR ASTIGMATISM",
-                        "INFUSE",
-                        "BIOTRUE ONEDAY"],
-        "ALCON": ["DAILIES TOTAL1",
-                  "PRECISION7",
-                  "PRECISION7 FOR ASTIGMATISM", 
-                  "PRECISION1",
-                  "PRECISION1 FOR ASTIGMATISM",
-                  "TOTAL30"
-                  "TOTAL30 FOR ASTIGMATISM"]
-        
-    }
-    #normalize keywords
-    keywords = [k.upper() for k in keywords]
-    read_line = " ".join(keywords)
-
-    # given keywords list, match using fuzzy search
-    top_score = 0
-    top_match = (None, None)
-    for brand, lines in brand_line.items():
-        for line in lines:
-            score = fuzz.partial_ratio(read_line, line)
-            if score > top_score:
-                top_match = (brand, line)
-                top_score = score
-    
-    return top_match
-            
-
-def get_distance(point1, point2):
-    return ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2) ** 0.5
-
 def match_parameters(params, values):
     data  = {}
     for param in params.keys():
@@ -228,16 +272,6 @@ def match_parameters(params, values):
     # print(data)
     return data
         
-
-
-def get_center_of_vertices(vertices):
-    x_coords = [v[0] for v in vertices]
-    y_coords = [v[1] for v in vertices]
-    center_x = sum(x_coords) / len(vertices)
-    center_y = sum(y_coords) / len(vertices)
-    return center_x, center_y
-
-
 def is_valid_parameter_value(param, val):
     if param == "Power":
         valid, valid_val = is_valid_sph(val)
@@ -253,7 +287,10 @@ def is_valid_parameter_value(param, val):
         print("not a valid param:", param)
         return False, None
     return valid, valid_val
-    
+
+###############################################
+#Validation functions for each parameter type
+################################################
 
 def is_valid_sph(val):
     if "+" in val:
@@ -302,3 +339,23 @@ def is_valid_add(val):
             return False, None
     else:
         return False, None
+
+################################################
+#Utility functions
+################################################
+def get_center_of_vertices(vertices):
+    x_coords = [v[0] for v in vertices]
+    y_coords = [v[1] for v in vertices]
+    center_x = sum(x_coords) / len(vertices)
+    center_y = sum(y_coords) / len(vertices)
+    return center_x, center_y
+
+def find_best_match(word, bank, threshold=75):
+        match, score, _ = process.extractOne(word, bank, scorer=fuzz.ratio)
+        return match if score >= threshold else None
+
+def get_distance(point1, point2):
+    return ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2) ** 0.5
+
+if __name__ == "__main__":
+    print(find_best_match("DAY", ["1-DAY", "WORD"]))
