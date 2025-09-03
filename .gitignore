@@ -11,3 +11,11 @@ venv/
 
 # OS files
 .DS_Store
+
+# IDE files
+__pycache__/
+*.pyc
+.pytest_cache/
+*.env/
+
+OCR_test/test_images
