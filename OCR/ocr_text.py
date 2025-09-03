@@ -9,7 +9,7 @@ from io import BytesIO
 # Path to your service account JSON key file
 KEY_PATH = "../credentials/google_vision_key.json"
 
-def detect_text_with_service_account(image_path):
+def detect_text(image_path):
     # Create credentials object from JSON key file
     credentials = service_account.Credentials.from_service_account_file(KEY_PATH)
     
@@ -50,6 +50,6 @@ def detect_text_with_service_account(image_path):
         return {}
 
 if __name__ == "__main__":
-    img_path = "OCR_test/test_004.jpeg"
-    text = detect_text_with_service_account(img_path)
+    img_path = "OCR_test/test_images/test_003.jpeg"
+    text = detect_text(img_path)
     data = parse_contact_lens_data(text)

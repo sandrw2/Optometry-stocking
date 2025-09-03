@@ -8,7 +8,7 @@ def parse_contact_lens_data(text_details):
     half_length = len(ocr_words) // 2
     brand_line_half = ocr_words[:half_length]
     line_keywords = find_title_keywords(brand_line_half)
-    brand, line = match_line(line_keywords)
+    brand, line = find_brand_and_line(line_keywords)
     print("Matched line:", line, "Brand:", brand)
     
     #Param_keys and param_values are dicts of words with their centers
@@ -76,7 +76,7 @@ def find_title_keywords(title):
     
     return line_keywords
 
-def match_line(keywords):
+def find_brand_and_line(keywords):
 
     brand_line = {
         "ACUVUE": ["ACUVUE OASYS 2-Week", 
@@ -128,23 +128,23 @@ def match_line(keywords):
     # First filter: Check which brand family 
     if "ACUVUE" in keywords or "OASYS" in keywords:
         brand = "ACUVUE"
-        line = match_line_from_brand(keywords, brand_line[brand])
+        line = match_best_line(keywords, brand_line[brand])
     elif "ALCON" in keywords:
         brand = "ALCON"
-        line = match_line_from_brand(keywords, brand_line[brand])
+        line = match_best_line(keywords, brand_line[brand])
     elif "SILICONE" in keywords or "COMFILCON" in keywords:
         brand = "COOPERVISION"
-        line, _ = match_line_from_brand(keywords, brand_line[brand])
+        line, _ = match_best_line(keywords, brand_line[brand])
         line = coopervision_brand_conversion[line]
         
     elif "BAUSCH+LOMB" in keywords or "BIOTRUE" in keywords or "ULTRA" in keywords:
         brand = "BAUSCH+LOMB"
-        line = match_line_from_brand(keywords, brand_line[brand])
+        line = match_best_line(keywords, brand_line[brand])
     
     return brand, line
             
 #returns best matching line from list given keyword list
-def match_line_from_brand(keywords, brand_lines):
+def match_best_line(keywords, brand_lines):
     top_match = None
     top_score = float('-inf')
     #Check each line check if line contains keyword, keep highest scoring line
