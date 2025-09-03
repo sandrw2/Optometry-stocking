@@ -9,12 +9,10 @@ def parse_contact_lens_data(text_details):
     brand_line_half = ocr_words[:half_length]
     line_keywords = find_title_keywords(brand_line_half)
     brand, line = match_line(line_keywords)
-    print("Title keywords:", line_keywords)
     print("Matched line:", line, "Brand:", brand)
     
     #Param_keys and param_values are dicts of words with their centers
-    param_keys, param_values = clean_param(ocr_words[half_length:], text_details)
-    print(param_keys, param_values)
+    param_keys, param_values = clean_param(ocr_words, text_details)
     param_data = match_parameters(param_keys, param_values)
     print("Matched parameters:", param_data)
 
@@ -35,7 +33,7 @@ def parse_contact_lens_data(text_details):
 
 
 #################################################
-#Title matching functions
+#Title matching functions 
 #################################################
 
 def find_title_keywords(title):
@@ -182,7 +180,6 @@ def clean_param(words, details):
     skip_next = False
     for i in range(len(words)):
         word = words[i]
-        # print("checking word:", word, details[word])
         if not skip_next:
             # if the word is a sign, try to combine with next word and skip next
             if  (word == "-" or word == "+") and i + 1 < len(words):
@@ -220,9 +217,7 @@ def clean_param(words, details):
                         params["Add"] = get_center_of_vertices(details[word])
                     else:
                         pass
-                        # print("Skipping unrecognized word:", word)
         else:
-            # print("Skipped next word due to sign combination.")
             skip_next = False
     return params, values
 
@@ -237,39 +232,28 @@ def find_new_bounding_box(box1, box2):
 def match_parameters(params, values):
     data  = {}
     for param in params.keys():
-        param_center_x, param_center_y = params[param]
-        closest_value = None
-        closest_distance = float('inf')
+        param_center = params[param]
+        best_value = None
+        best_score = float('inf')
 
         #Check values to the right of param first
         for value, value_center in values.items():
-            # print("checking value:", value, "for param:", param)
-            value_center_x, value_center_y = value_center
-            if value_center_x >= param_center_x:
-                distance = get_distance((param_center_x, param_center_y), (value_center_x, value_center_y))
-                if distance < closest_distance:
-                        print("found closer value:", value, "for param:", param, "distance:", distance)
-                        valid, valid_val = is_valid_parameter_value(param, value)
-                        if valid:
-                            print("valid value:", valid_val, "for param:", param)
-                            closest_distance = distance
-                            closest_value = valid_val
+            new_score = get_score("Horizontal", param_center, value_center)
+            if new_score < best_score:
+                    valid, valid_val = is_valid_parameter_value(param, value)
+                    if valid:
+                        best_score = new_score
+                        best_value = valid_val
         #Check values below if none found to the right
-        if closest_value is None:
+        if best_value is None:
             for value, value_center in values.items():
-                value_center_y, value_center_y = value_center
-                if value_center_y >= param_center_y:
-                    distance = get_distance((param_center_x, param_center_y), (value_center_x, value_center_y))
-                    if distance < closest_distance:
-                        print ("found closer value:", value, "for param:", param, "distance:", distance)
-                        valid, valid_val = is_valid_parameter_value(param, value)
-                        if valid:
-                            closest_distance = distance
-                            closest_value = valid_val
-
-        
-        data[param] = closest_value
-    # print(data)
+                new_score = get_score("Vertical", param_center, value_center)
+                if new_score < best_score:
+                    valid, valid_val = is_valid_parameter_value(param, value)
+                    if valid:
+                        best_score = new_score
+                        best_value = valid_val
+        data[param] = best_value
     return data
         
 def is_valid_parameter_value(param, val):
@@ -278,13 +262,10 @@ def is_valid_parameter_value(param, val):
     elif param == "Cylinder":
         valid, valid_val = is_valid_cyl(val)
     elif param == "Axis":
-        print(val)
         valid, valid_val = is_valid_axis(val)
-        print(valid_val)    
     elif param == "Add":
         valid, valid_val = is_valid_add(val)
     else:
-        print("not a valid param:", param)
         return False, None
     return valid, valid_val
 
@@ -354,8 +335,17 @@ def find_best_match(word, bank, threshold=75):
         match, score, _ = process.extractOne(word, bank, scorer=fuzz.ratio)
         return match if score >= threshold else None
 
-def get_distance(point1, point2):
-    return ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2) ** 0.5
+def get_score(bias, point1, point2):
+    if bias == "Horizontal":
+        horizontal_penalty = 1.0
+        vertical_penalty = 2.0
+    else:
+        horizontal_penalty = 2.0
+        vertical_penalty = 1.0
+    horizontal_distance = abs(point2[0] - point1[0])
+    vertical_distance = abs(point2[1] - point1[1])
+    score = (horizontal_penalty * horizontal_distance) + (vertical_penalty * vertical_distance)
+    return score 
 
 if __name__ == "__main__":
     print(find_best_match("DAY", ["1-DAY", "WORD"]))
