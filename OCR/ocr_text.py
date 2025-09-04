@@ -1,13 +1,12 @@
 from google.cloud import vision
 from google.oauth2 import service_account
-from ocr_parser import parse_contact_lens_data
 
 # image pre-processing libraries
 from PIL import Image, ImageOps
 from io import BytesIO
 
 # Path to your service account JSON key file
-KEY_PATH = "../credentials/google_vision_key.json"
+KEY_PATH = "credentials/google_vision_key.json"
 
 def detect_text(image_path):
     # Create credentials object from JSON key file
@@ -38,18 +37,14 @@ def detect_text(image_path):
 
     details = response.text_annotations[1:]
 
-    text_details = {}
+    text_details = []
     if details:
         for det in details:
             word = det.description.upper()
             vertices = [(v.x, v.y) for v in det.bounding_poly.vertices]
-            text_details[word] = vertices
+            # text_details[word] = vertices
+            text_details.append((word, vertices))
         return text_details
     else:
         print("No text found")
         return {}
-
-if __name__ == "__main__":
-    img_path = "OCR_test/test_images/test_003.jpeg"
-    text = detect_text(img_path)
-    data = parse_contact_lens_data(text)

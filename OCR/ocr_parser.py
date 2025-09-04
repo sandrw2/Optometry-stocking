@@ -1,5 +1,5 @@
 from rapidfuzz import process, fuzz
-from contacts import Contacts
+# from contacts import Contacts
 
 
 def parse_contact_lens_data(text_details):
@@ -141,7 +141,7 @@ def find_brand_and_line(keywords):
         brand = "BAUSCH+LOMB"
         line = match_best_line(keywords, brand_line[brand])
     
-    return brand, line
+    return brand,line[0]
             
 #returns best matching line from list given keyword list
 def match_best_line(keywords, brand_lines):
