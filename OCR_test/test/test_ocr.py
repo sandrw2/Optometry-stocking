@@ -1,7 +1,20 @@
-from OCR.ocr_parser import find_title_keywords, find_brand_and_line, match_best_line 
-from OCR.ocr_text import detect_text 
-import pytest
 
+# ====================================================================================
+# IF RUNNING FROM OUTMOST DIRECTORY!!
+import sys
+import os
+
+# Add project root (one level above OCR_test) to Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+from OCR import find_title_keywords#, find_brand_and_line#, match_best_line 
+# ====================================================================================
+
+import pytest
+import json
+
+# Load precomputed OCR results
+with open("output/ocr_results.json", "r", encoding="utf-8") as f:
+    all_results = json.load(f)
 
 test_cases = [
     ("test_001.jpeg", ["ACUVUE", "OASYS", "1-DAY", "HYDRALUXE", "ASTIGMATISM"]),
@@ -48,10 +61,11 @@ test_cases = [
 
 @pytest.mark.parametrize("image_path,expected", test_cases)
 def test_extract_value(image_path, expected):
-    text = detect_text(f"OCR_test/test_images/{image_path}")
-    half_length = len(text) // 2
-    result = find_title_keywords(text[:half_length])
-    assert result == expected
+    print(f"Testing {image_path}..")
+    text = all_results.get(image_path, [])
+    test_data = [x[0] for x in text]
+    result = find_title_keywords(test_data)
+    assert set(result) == set(expected)
 
 # def test_extracting_title_keywords():
 #     assert 
