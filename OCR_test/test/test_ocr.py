@@ -6,7 +6,7 @@ import os
 
 # Add project root (one level above OCR_test) to Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
-from OCR import find_brand_and_line
+from OCR import find_brand_and_line, find_title_keywords
 # ====================================================================================
 
 import pytest
@@ -64,7 +64,8 @@ def test_extract_title(image_path, expected):
     print(f"Testing {image_path}..")
     text = all_results.get(image_path, [])
     test_data = [x[0] for x in text]
-    result = find_brand_and_line(test_data)
+    keywords = find_title_keywords(test_data)
+    result = find_brand_and_line(keywords)
     assert set(result) == set(expected)
 
 # def test_extracting_title_keywords():
