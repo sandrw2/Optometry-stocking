@@ -80,6 +80,7 @@ def find_brand_and_line(keywords):
 
     brand_line = {
         "ACUVUE": ["ACUVUE OASYS 2-Week", 
+                   "ACUVUE OASYS 2-Week FOR ASTIGMATISM",
                    "1-DAY ACUVUE MOIST", 
                    "1-DAY ACUVUE MOIST FOR ASTIGMATISM", 
                    "ACUVUE OASYS 1-DAY FOR ASTIGMATISM",
@@ -141,7 +142,7 @@ def find_brand_and_line(keywords):
         brand = "BAUSCH+LOMB"
         line = match_best_line(keywords, brand_line[brand])
     
-    return brand,line[0]
+    return brand,line
             
 #returns best matching line from list given keyword list
 def match_best_line(keywords, brand_lines):
@@ -161,7 +162,7 @@ def match_best_line(keywords, brand_lines):
         if score > top_score:
             top_score = score
             top_match = line
-    return top_match, top_score
+    return top_match
 
 #################################################
 #Parameter matching functions
