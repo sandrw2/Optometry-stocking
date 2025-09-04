@@ -6,7 +6,7 @@ import os
 
 # Add project root (one level above OCR_test) to Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
-from OCR import find_title_keywords#, find_brand_and_line#, match_best_line 
+from OCR import find_brand_and_line
 # ====================================================================================
 
 import pytest
@@ -17,26 +17,26 @@ with open("output/ocr_results.json", "r", encoding="utf-8") as f:
     all_results = json.load(f)
 
 test_cases = [
-    ("test_001.jpeg", ["ACUVUE", "OASYS", "1-DAY", "HYDRALUXE", "ASTIGMATISM"]),
-    ("test_002.jpeg", ["1-DAY", "ACUVUE", "MOIST"]),
-    ("test_003.jpeg", ["ACUVUE", "OASYS", "1-DAY", "HYDRALUXE", "ASTIGMATISM"]),
-    ("test_004.jpeg", ["COMFILCON", "TORIC"]),
-    ("test_005.jpeg", ["COMFILCON", "TORIC"]),
-    ("test_006.jpeg", ["ACUVUE", "OASYS", "1-DAY", "HYDRALUXE", "ASTIGMATISM"]),
-    ("test_007.jpeg", ["ACUVUE", "OASYS", "1-DAY", "HYDRALUXE", "ASTIGMATISM"]),
-    ("test_008.jpeg", ["ACUVUE", "OASYS", "1-DAY", "HYDRALUXE"]),
-    ("test_009.jpeg", ["1-DAY", "MULTIFOCAL", "SILICONE"]),
-    ("test_010.jpeg", ["ACUVUE", "OSASYS", "MAX", "1-DAY", "MULTIFOCAL"]),
-    ("test_011.jpeg", ["COMFILCON", "TORIC"]),
-    ("test_012.jpeg", ["BAUSCH+LOMB", "ULTRA", "MULTIFOCAL", "ASTIGMATISM"]),
-    ("test_013.jpeg", ["COMFILCON", "XR", "TORIC"]),
-    ("test_014.jpeg", ["COMFICON", "TORIC"]),
-    ("test_015.jpeg", ["ACUVUE", "OASYS", "1-DAY", "HYDRALUXE", "ASTIGMATISM"]),
-    ("test_016.jpeg", ["ACUVUE", "MOIST", "1-DAY"]),
-    ("test_017.jpeg", ["TOTAL30", "ASTIGMATISM", "ALCON"]),
-    ("test_018.jpeg", ["ACUVUE", "OASYS", "1-DAY", "HYDRALUXE", "ASTIGMATISM"]),
-    ("test_019.jpeg", ["PRECISION1", "ALCON", "ASTIGMATISM"]),
-    ("test_020.jpeg", ["COMFILCON", "TORIC"]),
+    ("test_001.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY ASTIGMATISM")),
+    ("test_002.jpeg", ("ACUVUE", "1-DAY ACUVUE MOIST")),
+    ("test_003.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY ASTIGMATISM")),
+    ("test_004.jpeg", ("COOPERVISION", "BIOFINITY TORIC")),
+    ("test_005.jpeg", ("COOPERVISION", "BIOFINITY TORIC")),
+    ("test_006.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY ASTIGMATISM")),
+    ("test_007.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY ASTIGMATISM")),
+    ("test_008.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY ASTIGMATISM")),
+    ("test_009.jpeg", ("COOPERVISION", "MYDAY MULTIFOCAL")),
+    ("test_010.jpeg", ("ACUVUE", "ACUVUE OASYS MAX 1-DAY MULTIFOCAL")),
+    ("test_011.jpeg", ("COOPERVISION", "BIOFINITY TORIC")),
+    ("test_012.jpeg", ("BAUSCH+LOMB", "ULTRA MULTIFOCAL FOR ASTIGMATISM")),
+    ("test_013.jpeg", ("COOPERVISION", "BIOFINITY TORIC XR")),
+    ("test_014.jpeg", ("COOPERVISION", "BIOFINITY TORIC")),
+    ("test_015.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY ASTIGMATISM")),
+    ("test_016.jpeg", ("ACUVUE", "1-DAY ACUVUE MOIST")),
+    ("test_017.jpeg", ("ALCON", "TOTAL30 FOR ASTIGMATISM")),
+    ("test_018.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY ASTIGMATISM")),
+    ("test_019.jpeg", ("ALCON", "PRECISION1 FOR ASTIGMATISM")),
+    ("test_020.jpeg", ("COOPERVISION", "BIOFINITY TORIC")),
     ("test_021.jpeg", ["ACUVUE", "OASYS", "HYDRACLEAR", "ASTIGMATISM"]),
     ("test_022.jpeg", ["DAILIES", "TOTAL1", "ALCON"]),
     ("test_023.jpeg", ["1-DAY", "TORIC", "SILICONE"]),
@@ -60,11 +60,11 @@ test_cases = [
 ]
 
 @pytest.mark.parametrize("image_path,expected", test_cases)
-def test_extract_value(image_path, expected):
+def test_extract_title(image_path, expected):
     print(f"Testing {image_path}..")
     text = all_results.get(image_path, [])
     test_data = [x[0] for x in text]
-    result = find_title_keywords(test_data)
+    result = find_brand_and_line(test_data)
     assert set(result) == set(expected)
 
 # def test_extracting_title_keywords():
