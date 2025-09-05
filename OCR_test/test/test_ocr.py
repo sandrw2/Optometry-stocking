@@ -17,24 +17,24 @@ with open("output/ocr_results.json", "r", encoding="utf-8") as f:
     all_results = json.load(f)
 
 test_cases = [
-    ("test_001.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY ASTIGMATISM")),
+    ("test_001.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY FOR ASTIGMATISM")),
     ("test_002.jpeg", ("ACUVUE", "1-DAY ACUVUE MOIST")),
-    ("test_003.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY ASTIGMATISM")),
+    ("test_003.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY FOR ASTIGMATISM")),
     ("test_004.jpeg", ("COOPERVISION", "BIOFINITY TORIC")),
     ("test_005.jpeg", ("COOPERVISION", "BIOFINITY TORIC")),
-    ("test_006.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY ASTIGMATISM")),
-    ("test_007.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY ASTIGMATISM")),
-    ("test_008.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY ASTIGMATISM")),
+    ("test_006.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY FOR ASTIGMATISM")),
+    ("test_007.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY FOR ASTIGMATISM")),
+    ("test_008.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY FOR ASTIGMATISM")),
     ("test_009.jpeg", ("COOPERVISION", "MYDAY MULTIFOCAL")),
     ("test_010.jpeg", ("ACUVUE", "ACUVUE OASYS MAX 1-DAY MULTIFOCAL")),
     ("test_011.jpeg", ("COOPERVISION", "BIOFINITY TORIC")),
     ("test_012.jpeg", ("BAUSCH+LOMB", "ULTRA MULTIFOCAL FOR ASTIGMATISM")),
     ("test_013.jpeg", ("COOPERVISION", "BIOFINITY TORIC XR")),
     ("test_014.jpeg", ("COOPERVISION", "BIOFINITY TORIC")),
-    ("test_015.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY ASTIGMATISM")),
+    ("test_015.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY FOR ASTIGMATISM")),
     ("test_016.jpeg", ("ACUVUE", "1-DAY ACUVUE MOIST")),
     ("test_017.jpeg", ("ALCON", "TOTAL30 FOR ASTIGMATISM")),
-    ("test_018.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY ASTIGMATISM")),
+    ("test_018.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY FOR ASTIGMATISM")),
     ("test_019.jpeg", ("ALCON", "PRECISION1 FOR ASTIGMATISM")),
     ("test_020.jpeg", ("COOPERVISION", "BIOFINITY TORIC")),
     ("test_021.jpeg", ("ACUVUE", "ACUVUE OASYS 2-Week")),
@@ -61,7 +61,6 @@ test_cases = [
 
 @pytest.mark.parametrize("image_path,expected", test_cases)
 def test_extract_title(image_path, expected):
-    print(f"Testing {image_path}..")
     text = all_results.get(image_path, [])
     test_data = [x[0] for x in text]
     keywords = find_title_keywords(test_data)
