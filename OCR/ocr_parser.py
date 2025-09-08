@@ -2,9 +2,9 @@ from rapidfuzz import process, fuzz
 # from contacts import Contacts
 
 
-def parse_contact_lens_data(text_details):
+def parse_contact_lens_data(text_data):
 
-    ocr_words = list(text_details.keys())
+    ocr_words = list(text_data.keys())
     half_length = len(ocr_words) // 2
     brand_line_half = ocr_words[:half_length]
     line_keywords = find_title_keywords(brand_line_half)
@@ -12,7 +12,7 @@ def parse_contact_lens_data(text_details):
     print("Matched line:", line, "Brand:", brand)
     
     #Param_keys and param_values are dicts of words with their centers
-    param_keys, param_values = clean_param(ocr_words, text_details)
+    param_keys, param_values = clean_param(text_data)
     param_data = match_parameters(param_keys, param_values)
     print("Matched parameters:", param_data)
 
@@ -167,7 +167,8 @@ def match_best_line(keywords, brand_lines):
 #################################################
 #Parameter matching functions
 #################################################
-def clean_param(words, details):
+def clean_param(text_data):
+    words = list(text_data.keys())
     values = {}
     params = {}
     
@@ -178,6 +179,8 @@ def clean_param(words, details):
         "Add": ["ADD"]
     }
 
+    Add_values =  ["HIGH", "MID", "MED", "LOW"]
+
     skip_next = False
     for i in range(len(words)):
         word = words[i]
@@ -186,10 +189,12 @@ def clean_param(words, details):
             if  (word == "-" or word == "+") and i + 1 < len(words):
                     try:
                         next = words[i+1]
-                        val = float(next)
+
+                        #Check if next word is a float, if not then fail to combine
+                        float(next)
                         
                         #create new bounding box
-                        new_box = find_new_bounding_box(details[word], details[next])
+                        new_box = find_new_bounding_box(text_data[word], text_data[next])
                         values[word + next] = get_center_of_vertices(new_box)
                         skip_next = True
                     
@@ -199,23 +204,25 @@ def clean_param(words, details):
             
             #If word has sign and value, keep as is
             elif "+" == word[0] or "-" == word[0]:
-                values[word] = get_center_of_vertices(details[word])
+                values[word] = get_center_of_vertices(text_data[word])
             
             #else try to convert word to float directly, append if valid
             else:
                 try:
-                    val = float(word)
-                    values[word] = get_center_of_vertices(details[word])
+                    float(word)
+                    values[word] = get_center_of_vertices(text_data[word])
                 except ValueError:
                     word = word.upper()
                     if word in word_bank["Power"]:
-                        params["Power"] = get_center_of_vertices(details[word])
+                        params["Power"] = get_center_of_vertices(text_data[word])
                     elif word in word_bank["Cylinder"]:
-                        params["Cylinder"] = get_center_of_vertices(details[word])
+                        params["Cylinder"] = get_center_of_vertices(text_data[word])
                     elif word in word_bank["Axis"]:
-                        params["Axis"] =  get_center_of_vertices(details[word])
+                        params["Axis"] =  get_center_of_vertices(text_data[word])
                     elif word in word_bank["Add"]:
-                        params["Add"] = get_center_of_vertices(details[word])
+                        params["Add"] = get_center_of_vertices(text_data[word])
+                    elif word in Add_values:
+                        values[word] = get_center_of_vertices(text_data[word])
                     else:
                         pass
         else:
@@ -276,11 +283,11 @@ def is_valid_parameter_value(param, val):
 
 def is_valid_sph(val):
     if "+" in val:
-        val = val.replace('+', '').strip()
+        temp_val = val.replace('+', '').strip()
     if not val.isdigit():
         try:
-            val = float(val)
-            valid = -12.00 <= val <= 8.00 and (val * 100) % 25 == 0  # checks for 0.25 increments
+            temp_val = float(temp_val)
+            valid = -12.00 <= temp_val <= 8.00 and (val * 100) % 25 == 0  # checks for 0.25 increments
             return valid, val
         except ValueError:
             return False, None
@@ -290,8 +297,8 @@ def is_valid_sph(val):
 def is_valid_cyl(val):
     if not val.isdigit():
         try:
-            val = float(val)
-            valid = (-6.0 <= val <= 0.00 or 0.25 <= val <= 6.0) and (val * 100) % 25 == 0
+            temp_val = float(val)
+            valid = (-6.0 <= temp_val <= 0.00 or 0.25 <= temp_val <= 6.0) and (temp_val * 100) % 25 == 0
             return valid, val
         except ValueError:
             return False, None
@@ -301,8 +308,8 @@ def is_valid_cyl(val):
 def is_valid_axis(val):
     if val.isdigit():
         try:
-            val = int(val)
-            valid = 0 <= val <= 180
+            temp_val = int(val)
+            valid = 0 <= temp_val <= 180
             return valid, val
         except ValueError:
             return False, None
@@ -310,15 +317,19 @@ def is_valid_axis(val):
         return False, None
     
 def is_valid_add(val):
+    #ADD values can be floats or strings (HIGH, MID, LOW)
     if '+' in val:
-        val = val.replace('+', '').strip()
+        temp_val = val.replace('+', '').strip()
     if not val.is_digit():
         try:
-            val = float(val)
-            valid = 0.75 <= val <= 3.00 and (val * 100) % 25 == 0  # checks for 0.25 increments
+            temp_val = float(temp_val)
+            valid = 0.75 <= temp_val <= 3.00 and (temp_val * 100) % 25 == 0  # checks for 0.25 increments
             return valid, val
         except ValueError:
-            return False, None
+            if val.upper() in ["HIGH", "MID", "MED", "LOW"]:
+                return True, val.upper()
+            else:                           
+                return False, None
     else:
         return False, None
 
