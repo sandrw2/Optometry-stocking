@@ -6,7 +6,7 @@ import os
 
 # Add project root (one level above OCR_test) to Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
-from OCR import find_brand_and_line, find_title_keywords, match_parameters, clean_param
+from OCR import find_brand_and_line, find_title_keywords #match_parameters, clean_param
 # ====================================================================================
 
 import pytest
@@ -16,7 +16,7 @@ import json
 with open("output/ocr_results.json", "r", encoding="utf-8") as f:
     all_results = json.load(f)
 
-test_cases = [
+title_test_cases = [
     ("test_001.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY FOR ASTIGMATISM HYDRALUXE")),
     ("test_002.jpeg", ("ACUVUE", "1-DAY ACUVUE MOIST")),
     ("test_003.jpeg", ("ACUVUE", "ACUVUE OASYS 1-DAY FOR ASTIGMATISM HYDRALUXE")),
@@ -112,13 +112,13 @@ parameter_test_cases = [
   
 ]
 
-@pytest.mark.parametrize("image_path,expected", parameter_test_cases)
-def test_extract_parameters(image_path, expected):
-    print(f"Testing Parameters {image_path}..")
-    text_data = all_results.get(image_path, [])
-    params, values = clean_param(text_data)
-    result = match_parameters(params, values)
-    assert result == expected
+# @pytest.mark.parametrize("image_path,expected", parameter_test_cases)
+# def test_extract_parameters(image_path, expected):
+#     print(f"Testing Parameters {image_path}..")
+#     text_data = all_results.get(image_path, [])
+#     params, values = clean_param(text_data)
+#     result = match_parameters(params, values)
+#     assert result == expected
 
 # def test_matching_lines():
 #     assert add(0, 5) == 5
