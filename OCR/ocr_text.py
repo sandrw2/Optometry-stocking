@@ -37,13 +37,13 @@ def detect_text(image_path):
 
     details = response.text_annotations[1:]
 
-    text_details = []
+    text_details = {}
     if details:
         for det in details:
             word = det.description.upper()
             vertices = [(v.x, v.y) for v in det.bounding_poly.vertices]
             # text_details[word] = vertices
-            text_details.append((word, vertices))
+            text_details[word] = vertices
         return text_details
     else:
         print("No text found")
