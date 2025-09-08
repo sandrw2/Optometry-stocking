@@ -50,7 +50,11 @@ def find_title_keywords(title):
                      "HYDRACLEAR", 
                      "COMFILCON", 
                      "SILICONE", 
-                     "TOTAL30", 
+                     "DAILIES",
+                     "TOTAL30",
+                     "TOTAL1",
+                     "TOTAL",
+                     "PRECISION",
                      "PRECISION1", 
                      "PRECISION7", 
                      "TORIC", 
@@ -59,10 +63,10 @@ def find_title_keywords(title):
                      "PRESBYOPIA",
                      "1-DAY",
                      "ULTRA", 
-                     "BIOTRUE"
-                     "XR"
-                     "ALCON"
-                     "BAUSCH+LOMB"
+                     "BIOTRUE",
+                     "XR",
+                     "ALCON",
+                     "BAUSCH"
                 ]
     
     line_keywords = []
@@ -79,13 +83,13 @@ def find_title_keywords(title):
 def find_brand_and_line(keywords):
 
     brand_line = {
-        "ACUVUE": ["ACUVUE OASYS 2-Week", 
-                   "ACUVUE OASYS 2-Week FOR ASTIGMATISM",
+        "ACUVUE": ["ACUVUE OASYS 2-WEEK HYDRACLEAR", 
+                   "ACUVUE OASYS 2-WEEK FOR ASTIGMATISM HYDRACLEAR",
                    "1-DAY ACUVUE MOIST", 
                    "1-DAY ACUVUE MOIST FOR ASTIGMATISM", 
-                   "ACUVUE OASYS 1-DAY FOR ASTIGMATISM",
+                   "ACUVUE OASYS 1-DAY FOR ASTIGMATISM HYDRALUXE",
+                   "ACUVUE OASYS 1-DAY HYDRALUXE",
                    "ACUVUE OASYS MAX 1-DAY",
-                   "ACUVUE OASYS 1-DAY",
                    "ACUVUE OASYS MAX 1-DAY MULTIFOCAL"],
         "COOPERVISION": ["COMFILCON", 
                       "COMFILCON TORIC", 
@@ -100,15 +104,17 @@ def find_brand_and_line(keywords):
                         "ULTRA MULTIFOCAL FOR ASTIGMATISM",
                         "INFUSE",
                         "BIOTRUE ONEDAY"],
-        "ALCON": ["DAILIES TOTAL1",
-                  "PRECISION7",
-                  "PRECISION7 FOR ASTIGMATISM", 
-                  "PRECISION1",
-                  "PRECISION1 FOR ASTIGMATISM",
-                  "TOTAL30"
-                  "TOTAL30 FOR ASTIGMATISM"]
+        "ALCON": ["DAILIES TOTAL 1",
+                  "PRECISION 7",
+                  "PRECISION 7 FOR ASTIGMATISM", 
+                  "PRECISION 1",
+                  "PRECISION 1 FOR ASTIGMATISM",
+                  "TOTAL 30",
+                  "TOTAL 30 FOR ASTIGMATISM"]
         
     }
+
+    {"ACUVUE": ("ACUVUE", "OASYS", "MOIST", "MAX"), }
     
     #normalize keywords
     keywords = [k.upper() for k in keywords]
@@ -120,7 +126,7 @@ def find_brand_and_line(keywords):
                                     "COMFILCON TORIC XR": "BIOFINITY TORIC XR",
                                     "COMFILCON MULTIFOCAL": "BIOFINITY MULTIFOCAL",
                                     "1 DAY SILICONE": "MYDAY",
-                                    "1 DAY TORIC SILCONE" : "MYDAY TORIC", 
+                                    "1 DAY TORIC SILICONE" : "MYDAY TORIC", 
                                     "1 DAY MULTIFOCAL SILICONE": "MYDAY MULTIFOCAL"
                                      }
     
@@ -130,17 +136,18 @@ def find_brand_and_line(keywords):
     if "ACUVUE" in keywords or "OASYS" in keywords:
         brand = "ACUVUE"
         line = match_best_line(keywords, brand_line[brand])
-    elif "ALCON" in keywords:
+    elif "ALCON" in keywords or "DAILIES" in keywords or "PRECISION" in keywords or "PRECISION1" in keywords or "PRECISION7" in keywords or "TOTAL" in keywords or "TOTAL1" in keywords or "TOTAL30" in keywords:
         brand = "ALCON"
+        line = match_best_line(keywords, brand_line[brand])
+    elif "BAUSCH" in keywords or "BIOTRUE" in keywords or "ULTRA" in keywords:
+        # not the contact has samflicon which matches with COMFILCON
+        brand = "BAUSCH+LOMB"
         line = match_best_line(keywords, brand_line[brand])
     elif "SILICONE" in keywords or "COMFILCON" in keywords:
         brand = "COOPERVISION"
-        line, _ = match_best_line(keywords, brand_line[brand])
-        line = coopervision_brand_conversion[line]
-        
-    elif "BAUSCH+LOMB" in keywords or "BIOTRUE" in keywords or "ULTRA" in keywords:
-        brand = "BAUSCH+LOMB"
         line = match_best_line(keywords, brand_line[brand])
+        line = coopervision_brand_conversion[line]
+    
     
     return brand,line
             
