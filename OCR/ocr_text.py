@@ -6,7 +6,7 @@ from PIL import Image, ImageOps
 from io import BytesIO
 
 # Path to your service account JSON key file
-KEY_PATH = "credentials/google_vision_key.json"
+KEY_PATH = "credentials/GOOGLE_API_KEY.json"
 
 def detect_text(image_path):
     # Create credentials object from JSON key file

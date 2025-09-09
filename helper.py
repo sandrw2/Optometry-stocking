@@ -10,7 +10,7 @@ def get_ocr_results(input_img_folder, output_file):
         print(f"Loaded OCR results from {output_file}")
     else:
         # WARNING!! pass for now to avoid calling vision on the entire folder again!!
-        return
+        #return
         all_results = {}
         for filename in os.listdir(input_img_folder):
             # Only process image files (basic check)
