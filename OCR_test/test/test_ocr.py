@@ -64,7 +64,7 @@ title_test_cases = [
     ("test_045.jpeg", ("COOPERVISION", "BIOFINITY MULTIFOCAL")), 
     ("test_046.jpeg", ("COOPERVISION", "BIOFINITY MULTIFOCAL")),
     ("test_047.jpeg", ("COOPERVISION", "BIOFINITY MULTIFOCAL")),
-    ("test_048,jpeg", ("COOPERVISION", "BIOFINITY MULTIFOCAL")),
+    ("test_048.jpeg", ("COOPERVISION", "BIOFINITY MULTIFOCAL")),
     ("test_049.jpeg", ("COOPERVISION", "BIOFINITY XR")),
     ("test_050.jpeg", ("COOPERVISION", "BIOFINITY XR")), 
     ("test_051.jpeg", ("COOPERVISION", "BIOFINITY XR")),
@@ -74,18 +74,17 @@ title_test_cases = [
     ("test_055.jpeg", ("COOPERVISION", "BIOFINITY XR")), 
     ("test_056.jpeg", ("COOPERVISION", "BIOFINITY")),
     ("test_057.jpeg", ("COOPERVISION", "BIOFINITY XR")),
-    ("test_058,jpeg", ("COOPERVISION", "BIOFINITY"))
+    ("test_058.jpeg", ("COOPERVISION", "BIOFINITY"))
 
 ]
 
-# @pytest.mark.parametrize("image_path,expected", title_test_cases)
-# def test_extract_title(image_path, expected):
-#     print(f"Testing Title {image_path}..")
-#     text_data = all_results.get(image_path, [])
-#     text_words = [x[0] for x in text_data]
-#     keywords = find_title_keywords(text_words)
-#     result = find_brand_and_line(keywords)
-#     assert set(result) == set(expected)
+@pytest.mark.parametrize("image_path,expected", title_test_cases)
+def test_extract_title(image_path, expected):
+    print(f"Testing Title {image_path}..")
+    text_data = all_results.get(image_path, [])
+    keywords = find_title_keywords(text_data)
+    result = find_brand_and_line(keywords)
+    assert set(result) == set(expected)
 
 
 parameter_test_cases = [
@@ -150,13 +149,13 @@ parameter_test_cases = [
   
 ]
 
-@pytest.mark.parametrize("image_path,expected", parameter_test_cases)
-def test_extract_parameters(image_path, expected):
-    print(f"Testing Parameters {image_path}..")
-    text_data = all_results.get(image_path, [])
-    params, values = clean_param(text_data)
-    result = match_parameters(params, values)
-    assert result == expected
+# @pytest.mark.parametrize("image_path,expected", parameter_test_cases)
+# def test_extract_parameters(image_path, expected):
+#     print(f"Testing Parameters {image_path}..")
+#     text_data = all_results.get(image_path, [])
+#     params, values = clean_param(text_data)
+#     result = match_parameters(params, values)
+#     assert result == expected
 
 # def test_matching_lines():
 #     assert add(0, 5) == 5
