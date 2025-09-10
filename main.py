@@ -1,19 +1,16 @@
-from helper import get_ocr_results, create_ocr_bboxes
-
-
-
-
-
-
+from helper import get_ocr_results, create_ocr_bboxes, get_all_title_keywords
 
 
 if __name__ == "__main__":
 
     input_image_folder_path = "OCR_test/test_images"
     output_file = "output/ocr_results.json"
+    keyword_file = "output/all_keywords.json"
     
     all_results = get_ocr_results(input_image_folder_path, output_file)
     
     boxed_image_folder_path = "output/bounded_images"
     
     create_ocr_bboxes(input_image_folder_path, all_results, boxed_image_folder_path)
+
+    get_all_title_keywords(all_results, keyword_file)
