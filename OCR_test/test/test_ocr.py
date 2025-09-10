@@ -55,7 +55,26 @@ title_test_cases = [
     ("test_036.jpeg", ("COOPERVISION", "MYDAY MULTIFOCAL")),
     ("test_037.jpeg", ("COOPERVISION", "BIOFINITY TORIC")),
     ("test_038.jpeg", ("BAUSCH+LOMB", "ULTRA MULTIFOCAL FOR ASTIGMATISM")),
-    ("test_039.jpeg", ("ALCON", "PRECISION 1"))
+    ("test_039.jpeg", ("ALCON", "PRECISION 1")),
+    ("test_040.jpeg", ("ALCON", "PRECISION 7")), 
+    ("test_041.jpeg", ("ACUVUE", "ACUVUE OASYS 2-WEEK FOR ASTIGMATISM HYDRACLEAR")),
+    ("test_042.jpeg", ("ALCON", "TOTAL 30 FOR ASTIGMATISM")), 
+    ("test_043.jpeg", ("ALCON", "PRECISION 7")), 
+    ("test_044.jpeg", ("ALCON", "PRECISION 7")),
+    ("test_045.jpeg", ("COOPERVISION", "BIOFINITY MULTIFOCAL")), 
+    ("test_046.jpeg", ("COOPERVISION", "BIOFINITY MULTIFOCAL")),
+    ("test_047.jpeg", ("COOPERVISION", "BIOFINITY MULTIFOCAL")),
+    ("test_048,jpeg", ("COOPERVISION", "BIOFINITY MULTIFOCAL")),
+    ("test_049.jpeg", ("COOPERVISION", "BIOFINITY XR")),
+    ("test_050.jpeg", ("COOPERVISION", "BIOFINITY XR")), 
+    ("test_051.jpeg", ("COOPERVISION", "BIOFINITY XR")),
+    ("test_052.jpeg", ("COOPERVISION", "BIOFINITY")),
+    ("test_053.jpeg", ("COOPERVISION", "BIOFINITY")),
+    ("test_054.jpeg", ("COOPERVISION", "BIOFINITY XR")),
+    ("test_055.jpeg", ("COOPERVISION", "BIOFINITY XR")), 
+    ("test_056.jpeg", ("COOPERVISION", "BIOFINITY")),
+    ("test_057.jpeg", ("COOPERVISION", "BIOFINITY XR")),
+    ("test_058,jpeg", ("COOPERVISION", "BIOFINITY"))
 
 ]
 
@@ -108,7 +127,26 @@ parameter_test_cases = [
     ("test_036.jpeg", {"Power": "+1.50", "Add": "MED"}),
     ("test_037.jpeg", {"Power": "-0.50", "Cylinder": "-1.25", "Axis": "170"}),
     ("test_038.jpeg", {"Power": "-4.50", "Cylinder": "-1.25", "Axis": "180", "Add": "LOW"}),
-    ("test_039.jpeg", {"Power": "-0.50"})
+    ("test_039.jpeg", {"Power": "-0.50"}),
+    ("test_040.jpeg", {"Power": "-2.25"}),
+    ("test_041.jpeg", {"Power": "-3.00", "Cylinder": "-0.75", "Axis": "180"}),
+    ("test_042.jpeg", {"Power": "-0.50", "Cylinder": "-0.75", "Axis": "80"}),
+    ("test_043.jpeg", {"Power": "+0.50"}),
+    ("test_044.jpeg", {"Power": "+5.50"}),
+    ("test_045.jpeg", {"Power": "+1.25", "Add": "+2.00N"}),
+    ("test_046.jpeg", {"Power": "-0.25", "Add": "+2.00D"}),
+    ("test_047.jpeg", {"Power": "+0.50", "Add": "+1.00D"}),
+    ("test_048.jpeg", {"Power": "+0.25", "Add": "+2.50N"}),
+    ("test_049.jpeg", {"Power": "+14.00"}),
+    ("test_050.jpeg", {"Power": "+12.50"}), 
+    ("test_051.jpeg", {"Power": "+13.50"}),
+    ("test_052.jpeg", {"Power": "+7.50"}), 
+    ("test_053.jpeg", {"Power": "+1.50"}), 
+    ("test_054.jpeg", {"Power": "-13.00"}),
+    ("test_055.jpeg", {"Power": "-14.00"}),
+    ("test_056.jpeg", {"Power": "-2.00"}),
+    ("test_057.jpeg", {"Power": "-18.00"}),
+    ("test_058.jpeg", {"Power": "-4.50"})
   
 ]
 
