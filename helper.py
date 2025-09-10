@@ -1,7 +1,7 @@
 import os
 import json
 
-from OCR import detect_text, draw_boxes#, parse_contact_lens_data
+from OCR import detect_text, draw_boxes, find_title_keywords
 
 def get_ocr_results(input_img_folder, output_file):
     if os.path.exists(output_file):
@@ -10,7 +10,7 @@ def get_ocr_results(input_img_folder, output_file):
         print(f"Loaded OCR results from {output_file}")
     else:
         # WARNING!! pass for now to avoid calling vision on the entire folder again!!
-        #return
+        return
         all_results = {}
         for filename in os.listdir(input_img_folder):
             # Only process image files (basic check)
@@ -42,4 +42,14 @@ def create_ocr_bboxes(input_image_folder_path, all_results, boxed_image_folder_p
             continue
 
         draw_boxes(image_path, image_result, output_path)
+
+def get_all_title_keywords(all_results, output_file):
+    keywords_results = {}
+    for img_name, img_data in all_results.items():
+        keywords_results[img_name] = find_title_keywords(img_data)
+
+    with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(keywords_results, f, indent=2, ensure_ascii=False)
+
+    print(f"All OCR results saved to {output_file}")
 
