@@ -1,13 +1,11 @@
 from rapidfuzz import process, fuzz
+import math
 # from contacts import Contacts
 
 
 def parse_contact_lens_data(text_data):
 
-    ocr_words = list(text_data.keys())
-    half_length = len(ocr_words) // 2
-    brand_line_half = ocr_words[:half_length]
-    line_keywords = find_title_keywords(brand_line_half)
+    line_keywords = find_title_keywords(text_data)
     brand, line = find_brand_and_line(line_keywords)
     print("Matched line:", line, "Brand:", brand)
     
@@ -36,9 +34,9 @@ def parse_contact_lens_data(text_data):
 #Title matching functions 
 #################################################
 
-def find_title_keywords(title):
+def find_title_keywords(text_data):
     # Normalize OCR words
-    line_name = [w.upper() for w in title]
+    words = text_data.keys()
     
     keywords = ["ACUVUE OASYS",
                      "ACUVUE",
@@ -68,15 +66,54 @@ def find_title_keywords(title):
                      "ALCON",
                      "BAUSCH"
                 ]
+    keyword_values = ["7", "30", "1"]
     
-    line_keywords = []
+    line_keywords = {}
+
+    line_values = {}
     
 
-    for word in line_name:
+    for word in words:
         if word not in line_keywords:
-                matched = find_best_match(word, keywords)
-                if matched:
-                    line_keywords.append(matched)
+                keyword_matched = find_best_match(word, keywords)
+                value_matched = find_best_match(word, keyword_values)
+                if keyword_matched:
+                    line_keywords[keyword_matched] = get_center_of_vertices(text_data[word])
+                if value_matched:
+                    line_values[value_matched] = get_center_of_vertices(text_data[word])
+    
+    #If there are line_values, check if the values are close to title keywords total or precision
+    if "TOTAL" in line_keywords or "PRECISION" in line_keywords:
+        #find closest value to the keyword TOTAL or PRECISION
+        closest_value = None
+        if "TOTAL" in line_keywords:
+            closest_value = find_closest_right_value(line_keywords["TOTAL"], line_values)
+        else:
+            closest_value = find_closest_right_value(line_keywords["PRECISION"], line_values)
+        #Add closest_value to line_keywords
+        if closest_value:
+            line_keywords[closest_value] = None
+
+    #Only return keywords, no more need to word location data
+    line_keywords = list(line_keywords.keys())
+
+    # seperate any TOTAL30s, PRECISION7s, etc
+    if "TOTAL30" in line_keywords:
+        line_keywords.remove("TOTAL30")
+        line_keywords.append("TOTAL")
+        line_keywords.append("30")
+    elif "TOTAL1" in line_keywords:
+        line_keywords.remove("TOTAL1")
+        line_keywords.append("TOTAL")
+        line_keywords.append("1")
+    elif "PRECISION1" in line_keywords:
+        line_keywords.remove("PRECISION1")
+        line_keywords.append("PRECISION")
+        line_keywords.append("1")
+    elif "PRECISION7" in line_keywords:
+        line_keywords.remove("PRECISION7")
+        line_keywords.append("PRECISION")
+        line_keywords.append("7")
     
     return line_keywords
 
@@ -92,6 +129,7 @@ def find_brand_and_line(keywords):
                    "ACUVUE OASYS MAX 1-DAY",
                    "ACUVUE OASYS MAX 1-DAY MULTIFOCAL"],
         "COOPERVISION": ["COMFILCON", 
+                      "COMFILCON XR",
                       "COMFILCON TORIC", 
                       "COMFILCON TORIC XR",
                       "COMFILCON MULTIFOCAL",
@@ -105,16 +143,14 @@ def find_brand_and_line(keywords):
                         "INFUSE",
                         "BIOTRUE ONEDAY"],
         "ALCON": ["DAILIES TOTAL 1",
-                  "PRECISION 7",
-                  "PRECISION 7 FOR ASTIGMATISM", 
                   "PRECISION 1",
                   "PRECISION 1 FOR ASTIGMATISM",
+                  "PRECISION 7",
+                  "PRECISION 7 FOR ASTIGMATISM", 
                   "TOTAL 30",
                   "TOTAL 30 FOR ASTIGMATISM"]
         
     }
-
-    {"ACUVUE": ("ACUVUE", "OASYS", "MOIST", "MAX"), }
     
     #normalize keywords
     keywords = [k.upper() for k in keywords]
@@ -122,6 +158,7 @@ def find_brand_and_line(keywords):
     line = None
 
     coopervision_brand_conversion = {"COMFILCON": "BIOFINITY",
+                                     "COMFILCON XR": "BIOFINITY XR",
                                     "COMFILCON TORIC": "BIOFINITY TORIC",
                                     "COMFILCON TORIC XR": "BIOFINITY TORIC XR",
                                     "COMFILCON MULTIFOCAL": "BIOFINITY MULTIFOCAL",
@@ -229,6 +266,8 @@ def clean_param(text_data):
                     elif word in word_bank["Add"]:
                         params["Add"] = get_center_of_vertices(text_data[word])
                     elif word in Add_values:
+                        values[word] = get_center_of_vertices(text_data[word])
+                    elif word == "N" or word == "D":
                         values[word] = get_center_of_vertices(text_data[word])
                     else:
                         pass
@@ -353,6 +392,20 @@ def get_center_of_vertices(vertices):
 def find_best_match(word, bank, threshold=75):
         match, score, _ = process.extractOne(word, bank, scorer=fuzz.ratio)
         return match if score >= threshold else None
+
+def find_closest_right_value(keyword_center, values):
+    closest_distance = float('inf')
+    closest_value = None
+    keyword_center_x, keyword_center_y  = keyword_center
+    for value, value_center in values.items():
+        value_center_x, value_center_y = value_center
+        if value_center_x > keyword_center_x:
+            distance  = math.sqrt((value_center_x - keyword_center_x)**2 + (value_center_y - keyword_center_y)**2)
+            if distance < closest_distance:
+                closest_distance = distance
+                closest_value = value
+    return closest_value
+
 
 def get_score(bias, point1, point2):
     if bias == "Horizontal":
