@@ -6,14 +6,14 @@ import os
 
 # Add project root (one level above OCR_test) to Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
-from OCR import find_brand_and_line, find_title_keywords, match_parameters, clean_param
+from OCR import find_brand_and_line, find_title_keywords, match_parameters, parse_param_and_values, get_contact_type
 # ====================================================================================
 
 import pytest
 import json
 
 # Load precomputed OCR results
-with open("output/ocr_results.json", "r", encoding="utf-8") as f:
+with open("../output/ocr_results.json", "r", encoding="utf-8") as f:
     all_results = json.load(f)
 
 title_test_cases = [
@@ -87,8 +87,13 @@ def test_extract_title(image_path, expected):
     assert set(result) == set(expected)
 
 
+'''
+Tests OK to FAIL:
+- test_001: 'D' not detected as keyword due to glare
+- test_
+'''
 parameter_test_cases = [
-    ("test_001.jpeg", {"Power": "-6.00", "Cylinder": "-1.25", "Axis": "180"}),
+    ("test_001.jpeg", {"Power": "-6.00", "Cylinder": "-1.25", "Axis": "170"}),
     ("test_002.jpeg", {"Power": "-2.75"}),
     ("test_003.jpeg", {"Power": "-6.50", "Cylinder": "-0.75", "Axis": "10"}),
     ("test_004.jpeg", {"Power": "-0.50", "Cylinder": "-1.25", "Axis": "10"}),
@@ -97,8 +102,8 @@ parameter_test_cases = [
     ("test_007.jpeg", {"Power": "-1.00", "Cylinder": "-1.25", "Axis": "180"}),
     ("test_008.jpeg", {"Power": "-4.75"}),
     ("test_009.jpeg", {"Power": "+2.00", "Add": "HIGH"}),
-    ("test_010.jpeg", {"Power": "-5.75", "Add": "MID"}),
-    ("test_011.jpeg", {"Power": "+0.50", "Cylinder": "0.75", "Axis": "180"}),
+    ("test_010.jpeg", {"Power": "-5.75", "Add": "+1.75"}),
+    ("test_011.jpeg", {"Power": "+0.50", "Cylinder": "-0.75", "Axis": "180"}),
     ("test_012.jpeg", {"Power": "-3.50", "Cylinder": "-1.75", "Axis": "180", "Add": "HIGH"}),
     ("test_013.jpeg", {"Power": "-4.50", "Cylinder": "-3.25", "Axis": "180"}),
     ("test_014.jpeg", {"Power": "-2.00", "Cylinder": "-0.75", "Axis": "30"}),
@@ -115,7 +120,7 @@ parameter_test_cases = [
     ("test_025.jpeg", {"Power": "-8.00", "Cylinder": "-2.25", "Axis": "10"}),
     ("test_026.jpeg", {"Power": "-9.00"}),
     ("test_027.jpeg", {"Power": "-3.00", "Cylinder": "-0.75", "Axis": "180"}),
-    ("test_028.jpeg", {"Power": "-5.75", "Add": "MID"}),
+    ("test_028.jpeg", {"Power": "-5.75", "Add": "+1.75"}),
     ("test_029.jpeg", {"Power": "-4.50", "Cylinder": "-2.75", "Axis": "180"}),
     ("test_030.jpeg", {"Power": "-0.50", "Cylinder": "-1.75", "Axis": "180"}),
     ("test_031.jpeg", {"Power": "-0.50", "Cylinder": "-0.75", "Axis": "180"}),
@@ -133,7 +138,7 @@ parameter_test_cases = [
     ("test_043.jpeg", {"Power": "+0.50"}),
     ("test_044.jpeg", {"Power": "+5.50"}),
     ("test_045.jpeg", {"Power": "+1.25", "Add": "+2.00N"}),
-    ("test_046.jpeg", {"Power": "-0.25", "Add": "+2.00D"}),
+    ("test_046.jpeg", {"Power": "+0.25", "Add": "+2.00D"}),
     ("test_047.jpeg", {"Power": "+0.50", "Add": "+1.00D"}),
     ("test_048.jpeg", {"Power": "+0.25", "Add": "+2.50N"}),
     ("test_049.jpeg", {"Power": "+14.00"}),
@@ -149,13 +154,17 @@ parameter_test_cases = [
   
 ]
 
-# @pytest.mark.parametrize("image_path,expected", parameter_test_cases)
-# def test_extract_parameters(image_path, expected):
-#     print(f"Testing Parameters {image_path}..")
-#     text_data = all_results.get(image_path, [])
-#     params, values = clean_param(text_data)
-#     result = match_parameters(params, values)
-#     assert result == expected
+@pytest.mark.parametrize("image_path,expected", parameter_test_cases)
+def test_extract_parameters(image_path, expected):
+    print(f"Testing Parameters {image_path}..")
+    text_data = all_results.get(image_path, [])
+    #Find brand line and type
+    keywords = find_title_keywords(text_data)
+    _, line = find_brand_and_line(keywords)
+    typ = get_contact_type(line)
+    params, values = parse_param_and_values(text_data)
+    result = match_parameters(params, values, typ)
+    assert result == expected
 
 # def test_matching_lines():
 #     assert add(0, 5) == 5

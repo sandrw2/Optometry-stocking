@@ -1,7 +1,7 @@
 import os
 import json
 
-from OCR import detect_text, draw_boxes, find_title_keywords
+from OCR import detect_text, draw_boxes, find_title_keywords, parse_param_and_values, match_parameters, find_brand_and_line, get_contact_type
 
 def get_ocr_results(input_img_folder, output_file):
     if os.path.exists(output_file):
@@ -51,5 +51,33 @@ def get_all_title_keywords(all_results, output_file):
     with open(output_file, "w", encoding="utf-8") as f:
             json.dump(keywords_results, f, indent=2, ensure_ascii=False)
 
-    print(f"All OCR results saved to {output_file}")
+def get_all_parameter_values(all_results, output_file):
+    param_values = {}
+    for img_name, img_data in all_results.items():
+        param_values[img_name] = parse_param_and_values(img_data)
+        print(f"called param function for {img_name}")
+    
+    with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(param_values, f, indent=2, ensure_ascii=False)
+    
+    print(f"All param results saved to {output_file}")
+
+def get_all_matched_parameter_values(all_results, output_file):
+    param_values = {}
+    for img_name, img_data in all_results.items():
+        params, values = parse_param_and_values(img_data)
+        keywords = find_title_keywords(img_data)
+        _, line = find_brand_and_line(keywords)
+        typ = get_contact_type(line)
+        param_values[img_name] = match_parameters(params, values, typ)
+        print(f"called param match function for {img_name}")
+    
+    with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(param_values, f, indent=2, ensure_ascii=False)
+    
+    print(f"All param results saved to {output_file}")
+     
+     
+
+
 

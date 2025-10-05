@@ -19,5 +19,5 @@ __pycache__/
 *.env/
 
 OCR_test/test_images
-OCR_test/output
+output/
 credentials/
