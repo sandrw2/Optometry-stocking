@@ -6,7 +6,7 @@ import os
 
 # Add project root (one level above OCR_test) to Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
-from OCR import find_brand_and_line, find_title_keywords, match_parameters, parse_param_and_values, get_contact_type
+from services import find_brand_and_line, find_title_keywords, match_parameters, parse_param_and_values, get_contact_type
 # ====================================================================================
 
 import pytest
@@ -88,9 +88,16 @@ def test_extract_title(image_path, expected):
 
 
 '''
+Current Issue: 
+- test_003 fails due to 'D' being matched with -0.75 being closest Horizontal Value
+    issue: When value is matched horizontally, vertical values are not considered
+- After modification: test_004 fails due to AX being matched to 17 rather than 10
+    issue: Now that we consider both closest horizontal and vertical values, Biofinity
+    might match incorrect values
+
 Tests OK to FAIL:
 - test_001: 'D' not detected as keyword due to glare
-- test_
+ 
 '''
 parameter_test_cases = [
     ("test_001.jpeg", {"Power": "-6.00", "Cylinder": "-1.25", "Axis": "170"}),

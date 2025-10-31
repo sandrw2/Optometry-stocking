@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Orders</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      h1 {
+        text-align: center;
+      }
+
+      .alert {
+        text-align: center;
+        color: red;
+      }
+      .content {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+      }
+      table {
+        font-size: 0.8rem;
+        width: 80%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid #ccc;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+      tr:hover {
+        background-color: #e8f4ff;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Orders</h1>
+    {% with messages = get_flashed_messages(with_categories = true)%} {% if
+    messages %} {% for category, messages in messages%}
+    <div class="alert">{{message}}</div>
+    {% endfor%} {% endif %} {% endwith %}
+    <div class="content">
+      <table>
+        <thead>
+          <tr>
+            <th>Patient Name</th>
+            <th>Patient DOB</th>
+            <th>Status</th>
+            <th>Brand</th>
+            <th>Power</th>
+            <th>Cyl</th>
+            <th>Axis</th>
+            <th>BC</th>
+            <th>DIAM</th>
+            <th>Info</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td>{{order.patient.name}}</td>
+            <td>{{order.patient.date_of_birth}}</td>
+            <td>{{order.order_status.value}}</td>
+            <td>{{order.brand}}</td>
+            <td>{{order.power}}</td>
+            <td>{{order.cylinder}}</td>
+            <td>{{order.axis}}</td>
+            <td>{{order.bc}}</td>
+            <td>{{order.diameter}}</td>
+            <td>
+              <a
+                href="{{ url_for('ptOrders.order_info', order_id=order.id)}}"
+                method="GET"
+              >
+                <button>More Info</button>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

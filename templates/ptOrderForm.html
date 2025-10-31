@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New Patient Trial Order</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            color: #2b3a67;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: 600;
+            color: #444;
+        }
+        input, select {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #2b3a67;
+        }
+        button {
+            background-color: #2b3a67;
+            color: white;
+            font-weight: 600;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background-color: #3e4e89;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Patient Trial Order Form</h1>
+        {% with messages = get_flashed_messages(with_categories = true)%} 
+            {% if messages %}
+                {% for category, messages in messages%}
+                    <div class = "alert">
+                        {{message}}
+                    </div>
+                {% endfor%}
+
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('ptOrders.add_patient_order') }}" method="POST" >
+            <!-- Patient Info -->
+            <label for="patient_name">Patient Name</label>
+            <input type="text" id="patient_name" name="patient_name" placeholder="John Doe" required>
+
+            <label for="dob">Date of Birth</label>
+            <input type="date" id="dob" name="dob">
+
+            <label for="doctor">Doctor</label>
+            <input type="text" id="doctor" name="doctor" placeholder="Dr. Smith">
+
+            <!-- Contact Lens Details -->
+            <label for="brand">Lens Brand</label>
+            <input type="text" id="brand" name="brand" placeholder="Acuvue Oasys">
+
+            <label for="power">Power (SPH)</label>
+            <input type="text" id="power" name="power" placeholder="-1.25">
+
+            <label for="cylinder">Cylinder (CYL)</label>
+            <input type="text" id="cylinder" name="cylinder" placeholder="-0.75">
+
+            <label for="axis">Axis</label>
+            <input type="text" id="axis" name="axis" placeholder="90">
+
+            <label for="add">Add</label>
+            <input type="text" id="add" name="add" placeholder="+0.00">
+
+            <label for="base_curve">Base Curve (BC)</label>
+            <input type="text" id="base_curve" name="base_curve" placeholder="8.6">
+
+            <label for="diameter">Diameter (DIA)</label>
+            <input type="text" id="diameter" name="diameter" placeholder="14.2">
+
+            <label for="quantity">Quantity</label>
+            <input type="number" id="quantity" name="quantity" min="1" placeholder="2">
+
+            <label for="notes">Notes</label>
+            <input type="text" id="notes" name="notes" placeholder="Optional notes (e.g. first trial, reorder, etc.)">
+
+            <button type="submit">Submit Order</button>
+        </form>
+    </div>
+</body>
+</html>

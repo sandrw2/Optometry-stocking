@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+
+        table {
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 1rem;
+            width: 80%;
+            border-collapse: separate;  
+            border-spacing: 0;
+            border: 1px solid #ccc;
+            border-radius: 12px;        
+            overflow: hidden;           
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h2 style= "text-align: center;"> Order Information</h2>
+    <div class = "container">
+        <table>
+            <tr>
+                <th>Patient Name</th>
+                <td>{{order.patient.name}}</td>
+            </tr>
+            
+            <tr>
+                <th>DOB</th>
+                <td>{{order.patient.date_of_birth}}</td>
+
+            </tr>
+            
+            
+            <tr>
+                <th>Doctor</th>
+                <td>{{order.doctor.name}}</td>
+                
+
+            </tr>
+            
+            <tr>
+                <th>Order ID</th>
+                <td>{{order.id}}</td>
+            </tr>
+            
+            <tr>
+                <th>Order Date</th>
+                <td>{{order.order_date}}</td>
+            </tr>
+
+            <tr>
+                <th>Order Status</th>
+                <td>{{order.order_status.value}}</td>
+                <td>
+                    <form action = "{{url_for('ptOrders.change_order_status', order_id = order.id)}}" method = "POST">
+                    <select name = "status">
+                        <option value="WAITING" {% if order.order_status.name == 'WAITING' %}selected{% endif %}>Waiting</option>
+                        <option value = "ARRIVED" {% if order.order_status.name == 'ARRIVED'%}selected{%endif%}>Arrived</option>
+                        <option value = "PICKED_UP" {% if order.order_status.name == 'PICKED_UP'%}selected{%endif%}>Picked Up</option>
+                    </select>
+                    <button type = "submit">Save</button>
+                    </form>
+                </td>
+                
+            </tr>
+
+            <tr>
+                <th>Arrival Date</th>
+                <td>{{order.arrival_date}}</td>
+            </tr>
+
+            <tr>
+                <th>Notes</th>
+                <td>{{order.notes}}</td>
+                <td><button>Edit</button></td>
+
+            </tr>
+
+            <tr>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Brand</th>
+                            <th>Power</th>
+                            <th>Cyl</th>
+                            <th>Axis</th>
+                            <th>BC</th>
+                            <th>DIAM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{order.brand}}</td>
+                            <td>{{order.power}}</td>
+                            <td>{{order.cylinder}}</td>
+                            <td>{{order.axis}}</td>
+                            <td>{{order.bc}}</td>
+                            <td>{{order.diameter}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </tr>
+
+            <tr>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style = "width: 25%;">
+                                Timestamp
+                            </th>
+                            <th style = "width: 75%;">
+                                Logs
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in order.logs %}
+                            <tr>
+                                <td>
+                                    {{log.timestamp}}
+                                </td>
+                                <td>
+                                    {{log.action}}
+                                </td>
+                            </tr>
+                        {% endfor%}
+                    </tbody>
+                </table>
+
+            </tr>
+
+        </table>
+    </div>
+    
+</body>
+</html>
