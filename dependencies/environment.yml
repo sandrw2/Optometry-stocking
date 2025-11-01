@@ -1,13 +1,12 @@
 name: optometry-env
 channels:
-  - conda-forge
   - defaults
 dependencies:
   - python=3.9
-  - aiohttp=3.12.15
-  - aiohappyeyeballs=2.6.1
-  - google-cloud-vision=3.10.2
-  - requests=2.32.4
-  - pillow=11.3.0
-  - numpy=2.0.2
-  - rapidfuzz=3.12.1
+  - google-cloud-vision
+  - pillow
+  - rapidfuzz
+  - pytest
+  - flask
+  - flask-sqlalchemy
+prefix: /Users/sandrawang/anaconda3/envs/optometry-env
