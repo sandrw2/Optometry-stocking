@@ -21,3 +21,5 @@ __pycache__/
 OCR_test/test_images
 output/
 credentials/
+
+instance/
